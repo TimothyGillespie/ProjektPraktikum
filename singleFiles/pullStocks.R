@@ -134,3 +134,7 @@ nvidia <- processing_pipelin(nvidia)
 
 # Save as csv in a linux system
 write.csv (amd[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")], file = "/home/timothy/amd.csv")
+write.csv (intel[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")], file = "/home/timothy/intel.csv")
+write.csv (apple[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")], file = "/home/timothy/apple.csv")
+write.csv (nvidia[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")], file = "/home/timothy/nvidia.csv")
+write.csv (qualcomm[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")], file = "/home/timothy/qualcomm.csv")
