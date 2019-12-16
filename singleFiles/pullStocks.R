@@ -1,4 +1,15 @@
 library(quantmod)
+
+#-------------------------------------------------------
+
+# Hilfsfunktion: + ist eine String-Konkatenation
+# Das k?nnt ihr zun?chst mal ignorieren
+"+" <- function(...) UseMethod("+") 
+"+.default" <- .Primitive("+") 
+"+.character" <- function(...) paste(...,sep="")
+
+#-------------------------------------------------------
+
 get_stock_data <- function (symbol, symbol_naming = F, cache = T)
 {
   if (symbol == "GDAXI") symbol <- "^GDAXI"
@@ -90,6 +101,30 @@ add_MA_close <- function (df) {
   return(df)  
 }
 
+# to the previous day
+add_percentage_change <- function (df) {
+  for(i in 2:nrow(df))
+    df[i, "Percentage_Change_Close"] <- (df[i, "Close"] / df[i - 1, "Close"]) - 1
+  
+  return(df)
+}
+
+add_other_stock <- function (stock1, stock2, prefix) {
+  for(i in c(1:nrow(stock2))) {
+      if(!is.na(stock1[rownames(stock2)[i],"Close"])) {
+        stock1[i, prefix + "_Percentage_Change_Close"] <- stock2[i, "Percentage_Change_Close"]
+        stock1[i, prefix + "_MA_Close"] <- stock2[i, "MA_Close"]
+        stock1[i, prefix + "_Last_Angle"] <- stock2[i, "Last_Angle"]
+        stock1[i, prefix + "_Days_Since_Last_Cross"] <- stock2[i, "Days_Since_Last_Cross"]
+         
+      }
+  }
+  
+  return(na.omit(stock1))
+}
+
+# k is the dataframe
+# i is the row in the dataframe
 generate_class <- function (k, i) {
   up <- c (Inf, which ((k[, "High"] > k[i, "Close"] * 1.03) & (k > i)))
   down <- c (Inf, which ((k[, "Low"] < k[i, "Close"] * 0.97) & (k > i)))
@@ -106,6 +141,7 @@ add_classes <- function(df) {
 
 #ma_range meaning moving average range
 processing_pipelin <- function(df, ma_range = 150) {
+  df <- add_percentage_change(df)
   df <- add_moving_average(df, ma_range)
   df <- add_angle_information(df)
   df <- add_MA_close(df)
@@ -131,6 +167,10 @@ qualcomm <- processing_pipelin(qualcomm)
 nvidia <- as.data.frame(get_stock_data("NVDA"))
 nvidia <- processing_pipelin(nvidia)
 
+amd_compared <- add_other_stock(amd, intel, "Intel")
+amd_compared <- add_other_stock(amd_compared, apple, "Apple")
+amd_compared <- add_other_stock(amd_compared, qualcomm, "Qualcomm")
+#amd_compared <- add_other_stock(amd_compared, nvidia, "Nvidia")
 
 # Save as csv in a linux system
 write.csv (amd[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")], file = "/home/timothy/amd.csv")
@@ -138,3 +178,4 @@ write.csv (intel[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")
 write.csv (apple[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")], file = "/home/timothy/apple.csv")
 write.csv (nvidia[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")], file = "/home/timothy/nvidia.csv")
 write.csv (qualcomm[, c("MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Class")], file = "/home/timothy/qualcomm.csv")
+write.csv (amd_compared[, c("Percentage_Change_Close", "MA_Close", "Last_Angle", "Days_Since_Last_Cross", "Intel_Percentage_Change_Close", "Intel_MA_Close", "Intel_Last_Angle", "Intel_Days_Since_Last_Cross", "Class")], file = "/home/timothy/compare_amd_intel.csv")
