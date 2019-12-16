@@ -168,8 +168,8 @@ nvidia <- as.data.frame(get_stock_data("NVDA"))
 nvidia <- processing_pipelin(nvidia)
 
 amd_compared <- add_other_stock(amd, intel, "Intel")
-amd_compared <- add_other_stock(amd_compared, apple, "Apple")
-amd_compared <- add_other_stock(amd_compared, qualcomm, "Qualcomm")
+#amd_compared <- add_other_stock(amd_compared, apple, "Apple")
+#amd_compared <- add_other_stock(amd_compared, qualcomm, "Qualcomm")
 #amd_compared <- add_other_stock(amd_compared, nvidia, "Nvidia")
 
 # Save as csv in a linux system
